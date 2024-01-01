@@ -1,16 +1,39 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Refit;
 
 namespace minhon;
 
+[Headers("Authorization: OAuth")]
 public interface IMachineTranslationClient
 {
-    [Post("/api/mt/general_{source}_{target}/")]
-    Task<string> Translate(Language source, Language target, TranslateRequest request);
+    [Post("/api/mt/generalNT_{source}_{target}/")]
+    Task<Respoonse> Translate(Language source, Language target, [Body(BodySerializationMethod.UrlEncoded)] TranslateRequest request);
 }
 
-public record TranslateRequest(string Key, string Name, string Text)
+public record TranslateRequest(
+    [property: AliasAs("key")] string Key,
+    [property: AliasAs("name")] string Name,
+    [property: AliasAs("text")] string Text)
 {
+    [AliasAs("type")]
     public string Type { get; } = "json";
+}
+
+public record Respoonse(ResultSet ResultSet);
+public record ResultSet(int Code, string Message, Request? Request, TranslateResult? Result);
+public record Request(Uri Url)
+{
+    [JsonExtensionData]
+    public Dictionary<string, JsonElement>? Params { get; set; }
+}
+public record TranslateResult(string Text, int Brank, TranslateInformation Information);
+public record TranslateInformation(
+    [property: JsonPropertyName("text-s")] string TextS,
+    [property: JsonPropertyName("text-t")] string TextT)
+{
+    [JsonExtensionData]
+    public Dictionary<string, JsonElement>? Params { get; set; }
 }
 
 public enum Language : int
