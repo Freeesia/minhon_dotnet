@@ -4,20 +4,23 @@ using Refit;
 
 namespace minhon;
 
-[Headers("Authorization: OAuth")]
 public interface IMachineTranslationClient
 {
-    [Post("/api/mt/generalNT_{source}_{target}/")]
-    Task<Respoonse> Translate(Language source, Language target, [Body(BodySerializationMethod.UrlEncoded)] TranslateRequest request);
+    [Post("/api/mt/{mode}_{srcLang}_{tarLang}/")]
+    Task<Respoonse> Translate(string mode, string srcLang, string tarLang, [Body(BodySerializationMethod.UrlEncoded)] TranslateRequest request);
 }
 
 public record TranslateRequest(
     [property: AliasAs("key")] string Key,
     [property: AliasAs("name")] string Name,
+    [property: AliasAs("access_token")] string AccessToken,
     [property: AliasAs("text")] string Text)
 {
     [AliasAs("type")]
     public string Type { get; } = "json";
+    // 文脈利用するとレスポンスのinformationが空配列になって型が合わないので無効化
+    // [AliasAs("history")]
+    // public string History { get; init; } = "0";
 }
 
 public record Respoonse(ResultSet ResultSet);
@@ -29,19 +32,39 @@ public record Request(Uri Url)
 }
 public record TranslateResult(string Text, int Brank, TranslateInformation Information);
 public record TranslateInformation(
-    [property: JsonPropertyName("text-s")] string TextS,
-    [property: JsonPropertyName("text-t")] string TextT)
+    [property: JsonPropertyName("text-s")] string SourceText,
+    [property: JsonPropertyName("text-t")] string TargetText,
+    [property: JsonPropertyName("sentence")] IReadOnlyList<TranslateSentence> Sentences)
 {
     [JsonExtensionData]
     public Dictionary<string, JsonElement>? Params { get; set; }
 }
 
-public enum Language : int
+public record TranslateSentence(
+    [property: JsonPropertyName("text-s")] string SourceText,
+    [property: JsonPropertyName("text-t")] string TargetText)
 {
-    none = -1,
-    ja = 0,        // 日本語
-    en = 1,        // 英語
-    cn = 2,        // 中国語（簡体）
-    tw = 3,        // 中国語（繁体）
-    ko = 4,        // 韓国語
+    [JsonExtensionData]
+    public Dictionary<string, JsonElement>? Params { get; set; }
+}
+
+public static class LanguageCode
+{
+    public const string Ja = "ja";
+    public const string En = "en";
+    public const string De = "de";
+    public const string Es = "es";
+    public const string Fr = "fr";
+    public const string It = "it";
+    public const string Pt = "pt";
+    public const string Ru = "ru";
+    public const string ZhCn = "zh-CN";
+    public const string ZhTw = "zh-TW";
+}
+
+public static class TranslateMode
+{
+    public const string GeneralNT = "generalNT";
+    public const string MinnaPE = "minnaPE";
+    public const string TransLM = "transLM";
 }
