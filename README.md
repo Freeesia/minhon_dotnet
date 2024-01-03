@@ -1,6 +1,6 @@
 # minhon_dotnet
 
-[![App Build](https://github.com/Freeesia/minhon/actions/workflows/dotnet-package.yml/badge.svg)](https://github.com/Freeesia/minhon/actions/workflows/dotnet-package.yml)
+[![Package](https://github.com/Freeesia/minhon_dotnet/actions/workflows/dotnet-package.yml/badge.svg)](https://github.com/Freeesia/minhon_dotnet/actions/workflows/dotnet-package.yml)
 [![NuGet version](https://badge.fury.io/nu/minhon.svg)](https://badge.fury.io/nu/minhon)
 
 「みんなの自動翻訳」のWeb APIを.NETから利用するためのライブラリです。
