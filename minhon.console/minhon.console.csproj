@@ -8,5 +8,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\minhon\minhon.csproj" />
+    <PackageReference Include="IdentityModel.OidcClient" Version="5.2.1" />
   </ItemGroup>
 </Project>
