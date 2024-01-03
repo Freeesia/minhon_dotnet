@@ -1,0 +1,24 @@
+<Project>
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>true</ImplicitUsings>
+    <Deterministic>true</Deterministic>
+    <Version Condition="'$(Version)' == ''">0.0.0-local</Version>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AnalysisMode>Recommended</AnalysisMode>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Authors>Freesia</Authors>
+    <Description>「みんなの自動翻訳＠TexTra®」を.NETで利用するためのライブラリ</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/Freeesia/minhon_dotnet</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Freeesia/minhon_dotnet</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>Translation</PackageTags>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+</Project>

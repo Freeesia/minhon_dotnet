@@ -1,4 +1,5 @@
 using System.Net;
+using System.Security.Cryptography;
 using System.Text;
 using IdentityModel;
 
@@ -34,9 +35,9 @@ internal class OAuthHanlder(string consumerKey, string consumerSecret, HttpMessa
         foreach (KeyValuePair<string, string> item in parameter)
         {
             //各種情報のうち、oauth_で始まる情報のみ、ヘッダに追加する。各情報はカンマ区切り、データはダブルクォーテーションで括る
-            if (item.Key.StartsWith("oauth_"))
+            if (item.Key.StartsWith("oauth_", StringComparison.Ordinal))
             {
-                sb.AppendFormat("{0}=\"{1}\",", item.Key, WebUtility.UrlEncode(item.Value));
+                sb.AppendFormat($"{item.Key}=\"{WebUtility.UrlEncode(item.Value)}\",");
             }
         }
         request.Headers.Authorization = new("OAuth", sb.ToString());
@@ -51,13 +52,15 @@ internal class OAuthHanlder(string consumerKey, string consumerSecret, HttpMessa
         //URLエンコード済みのクエリ形式文字列に変換
         string paramString = CreateQueryString(sorted);
         //アクセス先URLの整形
-        string url = string.Format("{0}://{1}{2}", uri.Scheme, uri.Host, uri.AbsolutePath);
+        string url = $"{uri.Scheme}://{uri.Host}{uri.AbsolutePath}";
         //署名のベース文字列生成（&区切り）。クエリ形式文字列は再エンコードする
-        string signatureBase = string.Format("{0}&{1}&{2}", method, WebUtility.UrlEncode(url), WebUtility.UrlEncode(paramString));
+        string signatureBase = $"{method}&{WebUtility.UrlEncode(url)}&{WebUtility.UrlEncode(paramString)}";
         //署名鍵の文字列をコンシューマー秘密鍵とアクセストークン秘密鍵から生成（&区切り。アクセストークン秘密鍵なくても&残すこと）
         string key = WebUtility.UrlEncode(consumerSecret) + "&";
         //鍵生成＆署名生成
-        System.Security.Cryptography.HMACSHA1 hmac = new(Encoding.ASCII.GetBytes(key));
+#pragma warning disable CA5350 // OAuth 1.0a では HMAC-SHA1 が必須
+        HMACSHA1 hmac = new(Encoding.ASCII.GetBytes(key));
+#pragma warning restore CA5350
         byte[] hash = hmac.ComputeHash(Encoding.ASCII.GetBytes(signatureBase));
         return Convert.ToBase64String(hash);
     }
@@ -70,7 +73,7 @@ internal class OAuthHanlder(string consumerKey, string consumerSecret, HttpMessa
         StringBuilder query = new();
         foreach (string key in param.Keys)
         {
-            query.AppendFormat("{0}={1}&", WebUtility.UrlEncode(key), WebUtility.UrlEncode(param[key]));
+            query.Append($"{WebUtility.UrlEncode(key)}={WebUtility.UrlEncode(param[key])}&");
         }
         return query.ToString(0, query.Length - 1);
     }
